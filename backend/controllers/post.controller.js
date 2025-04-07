@@ -201,9 +201,9 @@ export const getfollowingPosts = async (req, res) => {
             path: "comment.user",
             select: "-password",
         });
-        if (feedPosts.length === 0) {
-            return res.status(404).json({ message: "No posts found" });
-        }
+        // if (feedPosts.length === 0) {
+        //     return res.status(200).json({ message: "No posts found" });
+        // }
         res.status(200).json(feedPosts);
     } catch (error) {
         res.status(500).json({ error: "Server error" });

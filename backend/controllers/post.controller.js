@@ -101,7 +101,8 @@ export const commentOnPost = async (req, res) => {
             type: "comment",
         })
         await notification.save();
-        res.status(201).json({ message: "Comment added successfully", comment });
+        const updateComment = post.comment;
+        res.status(201).json({ message: "Comment added successfully", updateComment });
     } catch (error) {
         res.status(500).json({ error: "Server error" });
         console.error("Error commenting on post:", error);

@@ -9,6 +9,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "react-hot-toast";
 import LoadingSpinner from "./LoadingSpinner";
 import { formatPostDate } from "../../utils/date/index";
+import BookmarkButton from "../../pages/home/BookmarkButton";
+import RepostButton from "../../pages/home/RepostButton";
 const Post = ({ post }) => {
 	const [comment, setComment] = useState("");
 	const queryClient = useQueryClient();
@@ -254,8 +256,8 @@ const Post = ({ post }) => {
 								</form>
 							</dialog>
 							<div className='flex gap-1 items-center group cursor-pointer'>
-								<BiRepost className='w-6 h-6  text-slate-500 group-hover:text-green-500' />
-								<span className='text-sm text-slate-500 group-hover:text-green-500'>0</span>
+								<RepostButton className='w-6 h-6'/>
+								
 							</div>
 							<div className='flex gap-1 items-center group cursor-pointer' onClick={handleLikePost}>
 								{isLiking && <LoadingSpinner size="sm" />}
@@ -274,7 +276,7 @@ const Post = ({ post }) => {
 							</div>
 						</div>
 						<div className='flex w-1/3 justify-end gap-2 items-center'>
-							<FaRegBookmark className='w-4 h-4 text-slate-500 cursor-pointer' />
+							<BookmarkButton className='w-4 h-4 ' />
 						</div>
 					</div>
 				</div>

@@ -11,9 +11,14 @@ import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
-import { useQuery } from "@tanstack/react-query";
-
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { formatMemberSinceDate } from "../../utils/date";
+import  useFollow  from "../../hooks/useFollow";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
+import toast from "react-hot-toast";
 const ProfilePage = () => {
+	const {follow, isPending} = useFollow();
+	const queryClient = useQueryClient();
 	const { username } = useParams();
 	const { data: authUser } = useQuery({ queryKey: ["authUser"],
 		queryFn: async () => {
@@ -67,7 +72,41 @@ const ProfilePage = () => {
 
 	const isMyProfile = authUser.user._id === user?._id;
 
-
+		const {mutate:updatedProfile,isPending:isUpdatingProfile} = useMutation({
+			mutationFn: async () => {
+				try {
+					const res = await fetch(`/api/users/update`, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify({
+							coverImg,
+							profileImg,
+						}),
+					});
+					const data = await res.json();
+					if (!res.ok) {
+						throw new Error(data.error || "Something went wrong");
+					}
+					return data;
+				} catch (error) {
+					throw new Error(error);
+				}
+			},
+			onSuccess: () => {
+				toast.success("Profile updated successfully");
+				Promise.all([
+					queryClient.invalidateQueries(["userProfile"]),
+					queryClient.invalidateQueries(["authUser"]),
+					setCoverImg(null),
+					setProfileImg(null),
+				]);
+			},
+			onError: (error) => {
+				toast.error(error.message);
+			},
+		})
 	const handleImgChange = (e, state) => {
 		const file = e.target.files[0];
 		if (file) {
@@ -146,21 +185,23 @@ const ProfilePage = () => {
 								</div>
 							</div>
 							<div className='flex justify-end px-4 mt-5'>
-								{isMyProfile && <EditProfileModal />}
+								{isMyProfile && <EditProfileModal authUser={authUser}/>}
 								{!isMyProfile && (
 									<button
 										className='btn btn-outline rounded-full btn-sm'
-										onClick={() => alert("Followed successfully")}
+										onClick={() => follow(user?._id)}
 									>
-										Follow
+										{isPending && <LoadingSpinner size="sm" />}
+										{!isPending && user?.followers.includes(authUser.user._id) ? "Unfollow" : "Follow"}
 									</button>
 								)}
 								{(coverImg || profileImg) && (
 									<button
 										className='btn btn-primary rounded-full btn-sm text-white px-4 ml-2'
-										onClick={() => alert("Profile updated successfully")}
+										onClick={() => updatedProfile()}
 									>
-										Update
+										{isUpdatingProfile && <LoadingSpinner size="sm" />}
+										{!isUpdatingProfile && "Update"}
 									</button>
 								)}
 							</div>
@@ -190,7 +231,7 @@ const ProfilePage = () => {
 									)}
 									<div className='flex gap-2 items-center'>
 										<IoCalendarOutline className='w-4 h-4 text-slate-500' />
-										<span className='text-sm text-slate-500'>Joined July 2021</span>
+										<span className='text-sm text-slate-500'>{formatMemberSinceDate(user?.createdAt)}</span>
 									</div>
 								</div>
 								<div className='flex gap-2'>
@@ -227,7 +268,7 @@ const ProfilePage = () => {
 						</>
 					)}
 
-					<Posts />
+					<Posts feedType={feedType} username={username} userId={user?._id}/>
 				</div>
 			</div>
 		</>

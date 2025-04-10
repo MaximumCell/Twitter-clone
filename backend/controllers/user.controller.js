@@ -71,7 +71,7 @@ export const followUser = async (req, res) => {
         { new: true }
       );
 
-      res.status(200).json({ message: "Unfollowed successfully" });
+      res.status(200).json({ message: "Unfollowed successfully",isFollowing: false });
     } else {
       await User.findByIdAndUpdate(
         id,
@@ -89,7 +89,7 @@ export const followUser = async (req, res) => {
         to: userToModify._id,
       });
       await newNotification.save();
-      res.status(200).json({ message: "User followed sucessfully" });
+      res.status(200).json({ message: "User followed sucessfully", isFollowing: true });
     }
   } catch (error) {
     console.error("Error following/unfollowing user:", error.message);

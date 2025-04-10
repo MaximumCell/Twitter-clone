@@ -19,13 +19,15 @@ const useFollow = () => {
             throw new Error(error.message || 'Something went wrong!');
         }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
         Promise.all([
 
             queryClient.invalidateQueries(['suggestedUsers']),
             queryClient.invalidateQueries(['authUser'])
         ])
-        toast.success('Followed successfully!');
+        if (data.isFollowing) {
+            toast.success('Followed successfully!');
+          }
     },
     onError: (error) => {
         toast.error(error.message || 'Something went wrong!');

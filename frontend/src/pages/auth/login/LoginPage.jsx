@@ -41,7 +41,7 @@ const LoginPage = () => {
 				throw error;
 			}
 		},
-		onSuccess: (data) => {
+		onSuccess: () => {
 			toast.success("Logged in successfully!");
 			setFormData({
 				username: "",
